@@ -39,7 +39,7 @@ If the simulation runs correctly the following files are expectes as outputs:
 3. 820 rater plots, 1 for each simulation
 4. 820 `.run ` and `.err` files, which contain the standard output and error for each simulation.
 5. A copy of the original `netParams.py` and `batch.py` files
-6. a `.json` file with the batch parameters and run option used.
+6. A `.json` file with the batch parameters and run option used.
 
 
 ## Contact information
