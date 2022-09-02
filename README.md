@@ -6,7 +6,7 @@ NetPyNE (www.netpyne.org) version of a model of CA1 microcircuits published by [
 Original model and publication: https://modeldb.yale.edu/234233 
 
 This is a functional model of the CA1 that studies the storage and retrieval of spatiotemporal patterns. 
-In this branch I am removing an increasing number of active CA3 inputs from an increasing number of CA1 cells to test how this affects the network's performance. For more details on the network see the main branch. I remove selectively AMPA, NMDA and both types of connections. 
+In this branch I am removing an increasing number of active CA3 inputs from an increasing number of CA1 cells to test how this affects the network's performance. I remove selectively AMPA, NMDA and both types of connections. For more details on the network see the main branch. 
 
 ## Setup
 
