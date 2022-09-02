@@ -6,8 +6,7 @@ NetPyNE (www.netpyne.org) version of a model of CA1 microcircuits published by [
 Original model and publication: https://modeldb.yale.edu/234233 
 
 This is a functional model of the CA1 that studies the storage and retrieval of spatiotemporal patterns. 
-In this branch I am removing an increasing number of active CA3 inputs from an increasing number of CA1 cells to test how this affects the network's performance. For more details on the network see the main branch. I remove selectively AMPA, NMDA and both types of connections. 
-
+In this branch I am removing an increasing number of EC inputs from an increasing number of CA1 cells to test how this affects the network's performance. For more details on the network see the main branch. 
 ## Setup
 
 Requires NEURON with Python. 
@@ -34,10 +33,10 @@ Requires MPI to run batch simulations
 ## Expected outputs
 
 If the simulation runs correctly the following files are expectes as outputs:
-1. 820 `data.json` which contain the simulation data, the network parameters and the simulation configuration for all simulations run
-2. 820 `spike_data.json` which contain the spike times of all cells for all simulations run
-3. 820 rater plots, 1 for each simulation
-4. 820 `.run ` and `.err` files, which contain the standard output and error for each simulation.
+1. 441 `data.json` which contain the simulation data, the network parameters and the simulation configuration for all simulations run
+2. 441 `spike_data.json` which contain the spike times of all cells for all simulations run
+3. 441 rater plots, 1 for each simulation
+4. 441 `.run ` and `.err` files, which contain the standard output and error for each simulation.
 5. A copy of the original `netParams.py` and `batch.py` files
 6. a `.json` file with the batch parameters and run option used.
 
