@@ -5,28 +5,25 @@ NetPyNE (www.netpyne.org) version of a model of CA1 microcircuits published by [
 
 Original model and publication: https://modeldb.yale.edu/234233 
 
-This is a functional model of the CA1 that studies the storage and retrieval of spatiotemporal patterns.
+This is a functional model of the CA1 that studies the storage and retrieval of spatiotemporal patterns. 
+In this branch I am removing an increasing number of active CA3 inputs from an increasing number of CA1 cells to test how this affects the network's performance. For more details on the network see the main branch. I remove selectively AMPA, NMDA and both types of connections. 
 
 ## Setup
 
-Requires NEURON with Python. The following commands are for Linux users. 
-
-1. Install NEURON
-`pip install neuron`
-
-2. Install NetPyNE
-`pip install netpyne`
-
-3. Install other required Python packages (numpy, matplotlib)
-`pip install numpy matplotlib`
+Requires NEURON with Python. 
+Requires MPI to run batch simulations
 
 ## Execution
 
 1. Type `nrnivmodl mod` to compile the `.mod` files. This should create a directory called either i686 or x86_64, depending on your computer's architecture. 
 
-2. To run type: `python init.py`
+2. To run a single simulation type: `python init.py`
+
+3. To run a batch simulation type: `mpiexec -np 64 nrniv -python -mpi batch.py` where 64 is the number of cores used. 
 
 ## Overview of file structure:
+
+* /batch.py: Runs the batch simulations
 
 * /init.py: Main executable; calls functions from other modules. Sets what parameter file to use.
 
@@ -34,35 +31,16 @@ Requires NEURON with Python. The following commands are for Linux users.
 
 * /cfg.py: Simulation configuration
 
-* /convert_cell_models.py: Generates `.json` files of all cell types. Converts NEURON `.hoc` files to NetPyNE. 
-
 ## Expected outputs
 
 If the simulation runs correctly the following files are expectes as outputs:
-1. `model_output.json` which contains the simulation data, the network parameters and the simulation configuration
-2. `rater_data.json` which contains the spike times of all cells
-3. 2 figures, 1 with the voltage trace and 1 rater plot
+1. 820 `data.json` which contain the simulation data, the network parameters and the simulation configuration for all simulations run
+2. 820 `spike_data.json` which contain the spike times of all cells for all simulations run
+3. 820 rater plots, 1 for each simulation
+4. 820 `.run ` and `.err` files, which contain the standard output and error for each simulation.
+5. A copy of the original `netParams.py` and `batch.py` files
+6. a `.json` file with the batch parameters and run option used.
 
-## Useful information 
-
-In the `netParams.py` file,
-`FPATT` at line 308 indicates the pattern file to be used in the simulation.
-`FCONN` at line 374 defines the weights between CA1 and CA3 pyramidal cells, the ones that can be modified by an STDP learning rule to memorize a new pattern.
-
-To test only retrieval of a pattern:
-- `FPATT` at line 308 and `FCONN` at line 374 must be equivalent. For example:
-`FCONN = "Weights/wgtsN100S20P5.dat"` and `FPATT = "Weights/pattsN100S20P1.dat"`
-- The STDP depression and potentiation factiors `STDPDFAC` and `STDPPFAC` at lines 160 and 161 must be set to 0
-- The EC input weight `ECWGT` at line 143 must be set to 0
-
-To test only storage of a pattern:
-- `FPATT` at line 308 and `FCONN` at line 374 must be different. For example:
-`FCONN = "Weights/wgtsN100S20P5.dat"` and `FPATT = "Weights/pattsN100S20P10.dat"`
-- The STDP depression and potentiation factiors `STDPDFAC` and `STDPPFAC` at lines 160 and 161 must NOT be 0
-- The EC input weight `ECWGT` at line 143 must NOT be 0
-- In the `init.py` file, run the simulation with `sim.run()` instead of `sim.runSimWithIntervalFunc(sim.updateInterval, removeStore)`
-
-To test both storage and retrieval of a pattern follow the instructions for testing only storage, but run the simulation with `sim.runSimWithIntervalFunc(sim.updateInterval, removeStore)`.
 
 ## Contact information
 
