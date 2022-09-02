@@ -27,6 +27,5 @@ cfg.analysis['plotRaster'] = {'saveData': True, 'saveFig': True} # Plot raster
 cfg.saveDataInclude=['simData', 'netParams', 'simConfig']
 
 # For batch simulations
-cfg.lesion_CA3 = 5
-cfg.percent_lesion_CA1 = 10
-cfg.receptorRemoved = 'NMDA'
+cfg.remove_EC_Conns = 5
+cfg.lesion_CA1 = 10
