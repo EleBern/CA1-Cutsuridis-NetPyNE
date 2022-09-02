@@ -1,8 +1,13 @@
 from netpyne import sim, specs
-from neuron import gui
+# from neuron import gui
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+random.seed(15)
+try:
+        from __main__ import cfg  # import SimConfig object with params from parent module
+except:
+        from nrn_cfg import cfg  # if no simConfig in parent module, import directly from cfg module
 
 netParams = specs.NetParams()
 
@@ -83,39 +88,39 @@ netParams.popParams['SEP']={'cellModel': 'BurstStim2', 'numCells': nSEP, 'interv
 #############################################
 ####		IMPORT CELL PARAMETERS  #####
 #############################################
-netParams.importCellParams(label='Pyramidalcell', conds={'cellType': 'Pyramidalcell', 'cellModel': 'Pyramidal_model'}, \
-fileName='pyramidal_cell_14Vb.hoc', cellName='PyramidalCell', importSynMechs=False)
+# netParams.importCellParams(label='Pyramidalcell', conds={'cellType': 'Pyramidalcell', 'cellModel': 'Pyramidal_model'}, \
+# fileName='pyramidal_cell_14Vb.hoc', cellName='PyramidalCell', importSynMechs=False)
 
-netParams.importCellParams(label='OLMcell', conds={'cellType': 'OLMcell', 'cellModel': 'OLM_model'}, \
-fileName='olm_cell2.hoc', cellName='OLMCell', importSynMechs=False)
-#netParams.cellParams['OLMcell'].globals.Rm=20000.
+# netParams.importCellParams(label='OLMcell', conds={'cellType': 'OLMcell', 'cellModel': 'OLM_model'}, \
+# fileName='olm_cell2.hoc', cellName='OLMCell', importSynMechs=False)
+# #netParams.cellParams['OLMcell'].globals.Rm=20000.
 
-netParams.importCellParams(label='BScell', conds={'cellType': 'BScell', 'cellModel': 'BS_model'}, \
-fileName='bistratified_cell13S.hoc', cellName='BistratifiedCell', importSynMechs=False)
+# netParams.importCellParams(label='BScell', conds={'cellType': 'BScell', 'cellModel': 'BS_model'}, \
+# fileName='bistratified_cell13S.hoc', cellName='BistratifiedCell', importSynMechs=False)
 
-netParams.importCellParams(label='Basketcell', conds={'cellType': 'Basketcell', 'cellModel': 'B_model'}, \
-fileName='basket_cell17S.hoc', cellName='BasketCell', importSynMechs=False)
+# netParams.importCellParams(label='Basketcell', conds={'cellType': 'Basketcell', 'cellModel': 'B_model'}, \
+# fileName='basket_cell17S.hoc', cellName='BasketCell', importSynMechs=False)
 
-netParams.importCellParams(label='AAcell', conds={'cellType': 'AAcell', 'cellModel': 'AA_model'}, \
-fileName='axoaxonic_cell17S.hoc', cellName='AACell', importSynMechs=False)
+# netParams.importCellParams(label='AAcell', conds={'cellType': 'AAcell', 'cellModel': 'AA_model'}, \
+# fileName='axoaxonic_cell17S.hoc', cellName='AACell', importSynMechs=False)
+
+# ##Setting thresholds
+
+# cells=['Pyramidalcell','OLMcell','BScell','Basketcell','AAcell']
+
+# for i in cells:
+#  	for sec in netParams.cellParams[i].secs:
+#   		netParams.cellParams[i].secs[sec].threshold = -10.0
+
+netParams.loadCellParamsRule(label= 'Pyramidalcell', fileName='Pyramidalcell.json')    
     
-# netParams.loadCellParamsRule(label= 'Pyramidalcell', fileName='Pyramidalcell.json')    
+netParams.loadCellParamsRule(label= 'OLMcell', fileName='OLMcell.json')    
     
-# netParams.loadCellParamsRule(label= 'OLMcell', fileName='OLMcell.json')    
+netParams.loadCellParamsRule(label= 'BScell', fileName='BScell.json')    
     
-# netParams.loadCellParamsRule(label= 'BScell', fileName='BScell.json')    
+netParams.loadCellParamsRule(label= 'Basketcell', fileName='Basketcell.json')    
     
-# netParams.loadCellParamsRule(label= 'Basketcell', fileName='Basketcell.json')    
-    
-# netParams.loadCellParamsRule(label= 'AAcell', fileName='AAcell.json')    
-
-#Setting thresholds
-
-cells=['Pyramidalcell','OLMcell','BScell','Basketcell','AAcell']
-
-for i in cells:
- 	for sec in netParams.cellParams[i].secs:
-  		netParams.cellParams[i].secs[sec].threshold = -10.0
+netParams.loadCellParamsRule(label= 'AAcell', fileName='AAcell.json') 
 
 #############################################
 ####		NETWORK CONNECTIONS	#####
@@ -140,8 +145,8 @@ CNWGT = 0.0005	#// excitatory weights (NMDA)
 CDEL = 1.	#// cue delay
 
 #EC excitation
-# ECWGT = 0.0	# EC weight to PCs
-ECWGT = 0.001	# EC weight to PCs
+ECWGT = 0.0	# EC weight to PCs
+# ECWGT = 0.001	# EC weight to PCs
 ECDEL = 1.	# EC delay
 EIWGT = 0.00015	# excitatory weights to INs
 EIDEL = 1.	# delay (msecs)
@@ -185,6 +190,23 @@ netParams.synMechParams['OLM_AMPA']={'mod':'Exp2Syn', 'tau1':0.5, 'tau2':3.0, 'e
 ####MyExp2Syn_2 == GABA-B ==? Exp2Syn_0 == {tau2: 100.0, tau1: 35.0, e: -75.0}
 ####NMDA_3 == NMDA
 ###THE EXP2SYN MECHS ARE USED FOR OLM CONNECTIONS ONLY
+
+#######################
+## for batch - list of lesioned CA1 pyramidal cells
+#######################
+lesioned_CA1 = random.sample(range(nPyramidal), int(cfg.percent_lesion_CA1 * 100 / nPyramidal))
+lesioned_CA1.sort(reverse = True)
+
+active_CA1 = []
+for i in range(nPyramidal):
+    active_CA1.append(i)
+
+# Remove the indexes of the CA1 cells that won't receive connections
+for i in lesioned_CA1:
+    active_CA1.pop(i)
+
+print("Lesioned CA1 cells which will not receive EC input")
+print(lesioned_CA1)
 
 #######################
 ##presyn = Pyramidal CHECKED
@@ -302,7 +324,7 @@ netParams.connParams['OLM->Pyramidal'] = {
 
 
 #####################################
-##### EC input to active pyramidal cells
+#####EC input to active pyramidal cells
 #####################################
 
 FPATT = "Weights/pattsN100S20P1.dat"	#patterns to store: each column is a pattern. Each line is a CA1 pyramidal cell
@@ -371,23 +393,177 @@ netParams.connParams['EC->IN'] = {
 ####CA3 EXCITATION
 #####################
 
-FCONN = "Weights/wgtsN100S20P5.dat"		#weights matrix generated with matlab file (already stored patterns)
+FCONN = "Weights/wgtsN100S20P1.dat"		#weights matrix generated with matlab file (already stored patterns)
 WGTCONN = (np.loadtxt(fname=FCONN, dtype='int16')) #each column has the weights for one pyramidal cell
 
 #############################
 ####CA3 -> INHIBITORY CELLS
 ############################
 
+# Generates "cfg.remove_CA3_Conns" random numbers between 0 and 99
+# Those are the indexes of the CA3 cells that will not stimulate CA1 cells
+removed_CA3 = random.sample(lista_CA3active, int(cfg.lesion_CA3))
+removed_CA3.sort(reverse = True)
+
+# Generate a list with all 100 indexes of the CA3 cells
+CA32connect = []
+for i in range(nCA3):
+    CA32connect.append(i)
+
+# Remove the indexes of the CA3 cells that won't be connected to CA1 cells
+for i in removed_CA3:
+    CA32connect.pop(i)
+
+print(*removed_CA3, sep = ", ")
+
 # lista_CA3active=[]
 ###connect CA3 input to all pyramidal cells but with different weights according to the WGTCONN[i][j] value
 lista_CA3highW=[]
 lista_CA3lowW=[]
-             
+lista_CA3highW_lesion=[]
+lista_CA3lowW_lesion=[]  
 for i in range(nCA3):  ##FULL CONNECTIVITY
- 	for j in range(nPyramidal):
- 			if WGTCONN[i][j]:
- 				 lista_CA3highW.append([i,j])
- 			else: lista_CA3lowW.append([i,j])         
+    for j in range(nPyramidal):
+        if WGTCONN[i][j]: 
+            lista_CA3highW.append([i,j])
+            if not (i in removed_CA3 and j in lesioned_CA1):
+                lista_CA3highW_lesion.append([i,j])
+        else: 
+            lista_CA3lowW.append([i,j]) 
+            if not (i in removed_CA3 and j in lesioned_CA1):
+                lista_CA3lowW_lesion.append([i,j])
+
+
+if cfg.receptorRemoved == 'AMPA':
+    netParams.connParams['CA3_highW->Pyramidal'] = {
+		'preConds': {'pop': 'CA3'},
+		'postConds': {'pop': 'Pyramidal'},
+		'connList':lista_CA3highW_lesion,
+		'sec': 'radTmed',
+#		'synMech': 'AMPA',
+		'synMech': 'STDP',
+		'loc':0.5,
+		'weight': CHWGT,
+		'delay': CDEL
+		#'threshold': 10.0
+		}
+
+    netParams.connParams['CA3_lowW->Pyramidal'] = {
+		'preConds': {'pop': 'CA3'},
+		'postConds': {'pop': 'Pyramidal'},
+		'connList':lista_CA3lowW_lesion,
+		'sec': 'radTmed',
+		'synMech': 'STDP',
+		'loc':0.5,
+		'weight': CLWGT,
+		'delay': CDEL
+		#'threshold': 10.0
+		}
+
+    netParams.connParams['CA3_NMDA->Pyramidal'] = {
+		'preConds': {'pop': 'CA3'},
+		'postConds': {'pop': 'Pyramidal'},
+		'sec': 'radTmed',
+		'connList':lista_CA3highW+lista_CA3lowW,
+		'synMech': 'NMDA',
+		'loc':0.5,
+		'weight': CNWGT,
+		'delay': CDEL
+		#'threshold': 10.0
+		}
+    
+
+elif cfg.receptorRemoved == 'NMDA':            
+    netParams.connParams['CA3_highW->Pyramidal'] = {
+		'preConds': {'pop': 'CA3'},
+		'postConds': {'pop': 'Pyramidal'},
+		'connList':lista_CA3highW,
+		'sec': 'radTmed',
+#		'synMech': 'AMPA',
+		'synMech': 'STDP',
+		'loc':0.5,
+		'weight': CHWGT,
+		'delay': CDEL
+		#'threshold': 10.0
+		}
+
+    netParams.connParams['CA3_lowW->Pyramidal'] = {
+		'preConds': {'pop': 'CA3'},
+		'postConds': {'pop': 'Pyramidal'},
+		'connList':lista_CA3lowW,
+		'sec': 'radTmed',
+		'synMech': 'STDP',
+		'loc':0.5,
+		'weight': CLWGT,
+		'delay': CDEL
+		#'threshold': 10.0
+		}
+
+    netParams.connParams['CA3_NMDA->Pyramidal'] = {
+		'preConds': {'pop': 'CA3'},
+		'postConds': {'pop': 'Pyramidal'},
+		'sec': 'radTmed',
+		'connList':lista_CA3highW_lesion + lista_CA3lowW_lesion,
+		'synMech': 'NMDA',
+		'loc':0.5,
+		'weight': CNWGT,
+		'delay': CDEL
+		#'threshold': 10.0
+		}
+    
+
+
+elif cfg.receptorRemoved == 'Both':
+    netParams.connParams['CA3_highW->Pyramidal'] = {
+		'preConds': {'pop': 'CA3'},
+		'postConds': {'pop': 'Pyramidal'},
+		'connList':lista_CA3highW_lesion,
+		'sec': 'radTmed',
+#		'synMech': 'AMPA',
+		'synMech': 'STDP',
+		'loc':0.5,
+		'weight': CHWGT,
+		'delay': CDEL
+		#'threshold': 10.0
+		}
+
+    netParams.connParams['CA3_lowW->Pyramidal'] = {
+		'preConds': {'pop': 'CA3'},
+		'postConds': {'pop': 'Pyramidal'},
+		'connList':lista_CA3lowW_lesion,
+		'sec': 'radTmed',
+		'synMech': 'STDP',
+		'loc':0.5,
+		'weight': CLWGT,
+		'delay': CDEL
+		#'threshold': 10.0
+		}
+
+    netParams.connParams['CA3_NMDA->Pyramidal'] = {
+		'preConds': {'pop': 'CA3'},
+		'postConds': {'pop': 'Pyramidal'},
+		'sec': 'radTmed',
+		'connList':lista_CA3highW_lesion + lista_CA3lowW_lesion,
+		'synMech': 'NMDA',
+		'loc':0.5,
+		'weight': CNWGT,
+		'delay': CDEL
+		#'threshold': 10.0
+		}
+    
+
+# Original code, without removing connections in batch simulations
+
+# # lista_CA3active=[]
+# ###connect CA3 input to all pyramidal cells but with different weights according to the WGTCONN[i][j] value
+# lista_CA3highW=[]
+# lista_CA3lowW=[]
+             
+# for i in range(nCA3):  ##FULL CONNECTIVITY
+#  	for j in range(nPyramidal):
+#  			if WGTCONN[i][j]:
+#  				 lista_CA3highW.append([i,j])
+#  			else: lista_CA3lowW.append([i,j])         
              
              
 postsynList=['AA','Basket','BS']
@@ -411,42 +587,42 @@ for i in range(len(postsynList)):
 		#'threshold': -10.0
 		}
 
-netParams.connParams['CA3_highW->Pyramidal'] = {
-		'preConds': {'pop': 'CA3'},
-		'postConds': {'pop': 'Pyramidal'},
-		'connList':lista_CA3highW,
-		'sec': 'radTmed',
-#		'synMech': 'AMPA',
-		'synMech': 'STDP',
-		'loc':0.5,
-		'weight': CHWGT,
-		'delay': CDEL
-		#'threshold': 10.0
-		}
+# netParams.connParams['CA3_highW->Pyramidal'] = {
+# 		'preConds': {'pop': 'CA3'},
+# 		'postConds': {'pop': 'Pyramidal'},
+# 		'connList':lista_CA3highW,
+# 		'sec': 'radTmed',
+# #		'synMech': 'AMPA',
+# 		'synMech': 'STDP',
+# 		'loc':0.5,
+# 		'weight': CHWGT,
+# 		'delay': CDEL
+# 		#'threshold': 10.0
+# 		}
 
-netParams.connParams['CA3_lowW->Pyramidal'] = {
-		'preConds': {'pop': 'CA3'},
-		'postConds': {'pop': 'Pyramidal'},
-		'connList':lista_CA3lowW,
-		'sec': 'radTmed',
-		'synMech': 'STDP',
-		'loc':0.5,
-		'weight': CLWGT,
-		'delay': CDEL
-		#'threshold': 10.0
-		}
+# netParams.connParams['CA3_lowW->Pyramidal'] = {
+# 		'preConds': {'pop': 'CA3'},
+# 		'postConds': {'pop': 'Pyramidal'},
+# 		'connList':lista_CA3lowW,
+# 		'sec': 'radTmed',
+# 		'synMech': 'STDP',
+# 		'loc':0.5,
+# 		'weight': CLWGT,
+# 		'delay': CDEL
+# 		#'threshold': 10.0
+# 		}
 
-netParams.connParams['CA3_NMDA->Pyramidal'] = {
-		'preConds': {'pop': 'CA3'},
-		'postConds': {'pop': 'Pyramidal'},
-		'sec': 'radTmed',
-		'connList':lista_CA3highW+lista_CA3lowW,
-		'synMech': 'NMDA',
-		'loc':0.5,
-		'weight': CNWGT,
-		'delay': CDEL
-		#'threshold': 10.0
-		}
+# netParams.connParams['CA3_NMDA->Pyramidal'] = {
+# 		'preConds': {'pop': 'CA3'},
+# 		'postConds': {'pop': 'Pyramidal'},
+# 		'sec': 'radTmed',
+# 		'connList':lista_CA3highW+lista_CA3lowW,
+# 		'synMech': 'NMDA',
+# 		'loc':0.5,
+# 		'weight': CNWGT,
+# 		'delay': CDEL
+# 		#'threshold': 10.0
+# 		}
 
 
 #######################
